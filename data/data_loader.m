@@ -14,11 +14,11 @@ function [y,x,m0,P0,A,Q,C,R] = data_loader(trial)
     x = zeros(dimx,N);
     y = zeros(dimy,N);
     P0 = 1e-10*eye(dimx);
-    Q = wishrnd(1e-4*eye(dimx)/dimx,dimx);
+    Q = wishrnd(1e-2*eye(dimx)/dimx,dimx);
 
     phase = 2*pi*rand;
     m0 = [cos(phase); sin(phase)];
-    A = phasor(2*pi*5.55/N)*.999;
+    A = phasor(2*pi*6.55/N)*.99;
 
     C = randn(dimy,dimx);
     C = bsxfun(@rdivide, C, sum(abs(C),2));
@@ -33,10 +33,10 @@ function [y,x,m0,P0,A,Q,C,R] = data_loader(trial)
     
     switch trial
         % Laplace-distributed noise.
-        case 'laplace noise'
+        case 'gaussian noise'
             R = .1*eye(dimy);
             for n = 1:N
-                y(:,n) = laprnd(C*x(:,n),R,1);
+                y(:,n) = mvnrnd(C*x(:,n),R);
             end
             
         % Gaussian noise with outliers occuring randomly every 1 in 10 samples.

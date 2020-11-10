@@ -2,7 +2,7 @@ function [parameters] = vblds_initialize(dimy,dimx)
 
     
     parameters.A = eye(dimx) + 1e-3*randn(dimx);
-    parameters.Q = 1e-2*eye(dimx);
+    parameters.Q = 1e-1*eye(dimx);
     parameters.C = rand(dimy,dimx);
     parameters.R = 1e-1*eye(dimy);
     parameters.m0 = zeros(dimx,1);

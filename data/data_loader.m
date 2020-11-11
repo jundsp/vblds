@@ -14,7 +14,7 @@ function [y,x,m0,P0,A,Q,C,R] = data_loader(trial)
     x = zeros(dimx,N);
     y = zeros(dimy,N);
     P0 = 1e-10*eye(dimx);
-    Q = wishrnd(1e-2*eye(dimx)/dimx,dimx);
+    Q = wishrnd(1e-5*eye(dimx)/dimx,dimx);
 
     phase = 2*pi*rand;
     m0 = [cos(phase); sin(phase)];
@@ -34,7 +34,7 @@ function [y,x,m0,P0,A,Q,C,R] = data_loader(trial)
     switch trial
         % Laplace-distributed noise.
         case 'gaussian noise'
-            R = .1*eye(dimy);
+            R = .05*eye(dimy);
             for n = 1:N
                 y(:,n) = mvnrnd(C*x(:,n),R);
             end

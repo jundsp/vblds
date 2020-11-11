@@ -4,11 +4,10 @@ function [params] = vblds_learn(y,mu,V,V12,params)
     dimy = size(y,1);
     
     % Hyperparameters
-    nu0_Q = 1e-12;
-    W0_Q = 1e-12*eye(dimx);
-    nu0_R = 1e-12;
-    W0_R = 1e-12*eye(dimy);
-    alpha = 1e-12*ones(dimx);
+    a0 = 1e-12; b0 = 1e-12;
+    c0 = 1e-12; d0 = 1e-12;
+    alpha = 1e-1*ones(dimx,dimx);
+    beta = 1e-1*ones(dimy,dimx);
 
     xx = mu*mu' + sum(V,3);
     x1x2 = mu(:,1:N-1)*mu(:,2:N)' + sum(V12,3);
@@ -26,38 +25,48 @@ function [params] = vblds_learn(y,mu,V,V12,params)
     P0 = V(:,:,1);
     P0 = 1/2*(P0+P0');
     
-    %% A
+    %% A & Q
     A = zeros(dimx,dimx);
     Sigma_A = zeros(dimx,dimx,dimx);
+    c_hat = zeros(dimx,1);
+    d_hat = zeros(dimx,1);
     for i = 1:dimx
         Lam = x1x1 + diag(alpha(i,:));
         ell = x1x2(:,i)';
         A(i,:) = ell / Lam;
         Sigma_A(:,:,i) = inv(Lam);
+        
+        c_hat(i) = c0 + 1/2*(N-1);
+        d_hat(i) = d0 + 1/2*(x2x2(i,i) - ell/Lam*ell' + A(i,:)*diag(alpha(i,:))*A(i,:)');
+        
     end
-    
-    %% Q
-    Ax1x2 = A*x1x2;
-    Ax1x1A = A*x1x1*A';
-    WM_Q = W0_Q + x2x2 - (Ax1x2 + Ax1x2') + Ax1x1A;
-    nuM_Q = nu0_Q + (N-1);
-    Q = WM_Q/nuM_Q;
-    Q = 1/2*(Q + Q');
+    tau = c_hat./d_hat;
+    Q = diag(1./tau);
     
     %% Sigma AQA
-    Sigma_AQA = zeros(dimx,dimx);
-    for i = 1:dimx
-        Sigma_AQA = Sigma_AQA + Q(i,i)*Sigma_A(:,:,i);
-    end
+    Sigma_AQA = sum(Sigma_A,3);
     
-    %% C
+    %% C & R
     C = xy'/xx;
+    Sigma_C = zeros(dimx,dimx,dimy);
+    a_hat = zeros(dimy,1);
+    b_hat = zeros(dimy,1);
+    for i = 1:dimy
+        ell = xy(:,i)';
+        Lam = xx + diag(beta(i,:));
+        C(i,:) = ell / Lam;
+        Sigma_C(:,:,i) = inv(Lam);
+        
+        a_hat(i) = a0 + 1/2*N;
+        b_hat(i) = b0 + 1/2*(yy(i,i) - ell/Lam*ell' + C(i,:)*diag(beta(i,:))*C(i,:)');
+    end
+    rho = a_hat./b_hat;
+    R = diag(1./rho);
     
-    %% R
-    nuM_R = nu0_R + N;
-    WM_R = W0_R + yy - C*xy;
-    R = WM_R/nuM_R;
-    R = 1/2*(R+R');
+    %% Sigma CRC
+    Sigma_CRC = sum(Sigma_C,3);
+    
+    %% Save Params
 
     params.A = A;
     params.Q = Q;
@@ -66,6 +75,7 @@ function [params] = vblds_learn(y,mu,V,V12,params)
     params.m0 = m0;
     params.P0 = P0;
     params.Sigma_AQA = Sigma_AQA;
+    params.Sigma_CRC = Sigma_CRC;
         
 end
 

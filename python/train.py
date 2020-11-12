@@ -29,5 +29,6 @@ for epoch in range(epochs):
 	print(('Epoch {:0.0f} / {:0.0f} ==> ELL = {:4.2f}').format(epoch,epochs,ell))
 
 # Save the model.
-print('Saving trained model.')
 torch.save(model.state_dict(),'saves/model.pt')
+print('Saved trained model.')
+

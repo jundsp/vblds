@@ -6,7 +6,7 @@ addpath('src','data','utils');
 
 % Initialize parameters
 dimy = size(y,1);
-dimx = 2;
+dimx = 8;
 parameters = vblds_initialize(dimy,dimx);
 
 epochs = 1000;

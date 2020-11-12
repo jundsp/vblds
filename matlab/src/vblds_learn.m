@@ -6,24 +6,24 @@ function [params] = vblds_learn(y,mu,V,V12,params)
     % Hyperparameters
     a0 = 1e-12; b0 = 1e-12;
     c0 = 1e-12; d0 = 1e-12;
-    alpha = 1e-1*ones(dimx,dimx);
-    beta = 1e-1*ones(dimy,dimx);
+    alpha = 1e-9*ones(dimx,dimx);
+    beta = 1e-9*ones(dimy,dimx);
 
     xx = mu*mu' + sum(V,3);
     x1x2 = mu(:,1:N-1)*mu(:,2:N)' + sum(V12,3);
     x1x1 = xx - (mu(:,N)*mu(:,N)' + V(:,:,N));
     x2x2 = xx - (mu(:,1)*mu(:,1)' + V(:,:,1));
     
-    xx = 1/2*(xx+xx');
-    x1x1 = 1/2*(x1x1+x1x1');
-    x2x2 = 1/2*(x2x2+x2x2');
+    xx = make_symmetric(xx);
+    x1x1 = make_symmetric(x1x1);
+    x2x2 = make_symmetric(x2x2);
     xy = mu*y';
     yy = y*y';
         
     %% m0, P0
     m0 = mu(:,1);
     P0 = V(:,:,1);
-    P0 = 1/2*(P0+P0');
+    P0 = make_symmetric(P0);
     
     %% A & Q
     A = zeros(dimx,dimx);
@@ -37,7 +37,7 @@ function [params] = vblds_learn(y,mu,V,V12,params)
         Sigma_A(:,:,i) = inv(Lam);
         
         c_hat(i) = c0 + 1/2*(N-1);
-        d_hat(i) = d0 + 1/2*(x2x2(i,i) - ell/Lam*ell' + A(i,:)*diag(alpha(i,:))*A(i,:)');
+        d_hat(i) = d0 + 1/2*(x2x2(i,i) - ell/Lam*ell');
         
     end
     tau = c_hat./d_hat;
@@ -58,7 +58,7 @@ function [params] = vblds_learn(y,mu,V,V12,params)
         Sigma_C(:,:,i) = inv(Lam);
         
         a_hat(i) = a0 + 1/2*N;
-        b_hat(i) = b0 + 1/2*(yy(i,i) - ell/Lam*ell' + C(i,:)*diag(beta(i,:))*C(i,:)');
+        b_hat(i) = b0 + 1/2*(yy(i,i) - ell/Lam*ell');
     end
     rho = a_hat./b_hat;
     R = diag(1./rho);

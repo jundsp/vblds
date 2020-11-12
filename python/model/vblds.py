@@ -1,34 +1,37 @@
-from __future__ import print_function
-import argparse
 import torch
 import torch.utils.data
 from torch import nn, optim, distributions
 from torch.nn import functional as F
-from torchvision import datasets, transforms
-from torchvision.utils import save_image
 import numpy as np
-import matplotlib.pyplot as plt
-import numpy as np
-from scipy.stats import norm
 
 def symmetric(A):
 	return 0.5*(A + A.T)
 	
 class VBLDS(nn.Module):
-	def __init__(self, A=None,C=None,Q=None,R=None,m0=None,P0=None):
+	def __init__(self, dimx, dimz):
 		super(VBLDS, self).__init__()
-		self.dimx = C.size(0)
-		self.dimz = A.size(0)
+		self.dimx, self.dimz = dimx, dimz
 
+		m0 = torch.zeros(dimz,1)
+		P0 = torch.eye(dimz)
+		A = torch.eye(dimz) + 1e-3*torch.randn(dimz,dimz)
+		R = torch.eye(dimx)*1e-1
+		Q = torch.eye(dimz)*1e-2
+		C = torch.rand(dimx,dimz)
+		Sigma_AQA = 1e-9*torch.ones(self.dimz,self.dimz)
+		Sigma_CRC = 1e-9*torch.ones(self.dimz,self.dimz)
+
+		# Model Parameters
 		self.register_parameter('A',nn.Parameter(A,requires_grad=False))
 		self.register_parameter('C',nn.Parameter(C,requires_grad=False))
 		self.register_parameter('Q',nn.Parameter(Q,requires_grad=False))
 		self.register_parameter('R',nn.Parameter(R,requires_grad=False))
 		self.register_parameter('m0',nn.Parameter(m0,requires_grad=False))
 		self.register_parameter('P0',nn.Parameter(P0,requires_grad=False))
-		self.register_parameter('Sigma_AQA',nn.Parameter(1e-9*torch.ones(self.dimz,self.dimz),requires_grad=False))
-		self.register_parameter('Sigma_CRC',nn.Parameter(1e-9*torch.ones(self.dimz,self.dimz),requires_grad=False))
+		self.register_parameter('Sigma_AQA',nn.Parameter(Sigma_AQA,requires_grad=False))
+		self.register_parameter('Sigma_CRC',nn.Parameter(Sigma_CRC,requires_grad=False))
 		
+		# Model Hyperparameters (constant)
 		self.alpha = 1e-6*torch.ones(self.dimz,self.dimz)
 		self.beta = 1e-6*torch.ones(self.dimx,self.dimz)
 		self.a, self.b, self.c, self.d = 1e-9, 1e-9, 1e-9, 1e-9

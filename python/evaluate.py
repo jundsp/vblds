@@ -8,7 +8,9 @@ from torch import nn
 import numpy as np 
 import matplotlib.pyplot as plt
 import os
+import shutil
 
+print('Evaluating on test data...')
 torch.set_default_tensor_type(torch.DoubleTensor)
 torch.manual_seed(1)
 
@@ -32,8 +34,14 @@ xs = model.C @ mus
 # Sample from learned model
 x_sample,z_sample = model.sample(N=N)
 
+
+# Save Results
+root = 'results'
+if os.path.exists(root):
+    shutil.rmtree(root)
+os.mkdir(root)
+
 # PLOT
-print('Plotting results.')
 t = torch.tensor(range(N))
 plt.figure(figsize=(6,4))
 plt.subplot(211)
@@ -52,7 +60,7 @@ plt.title('Sampled from Learned Model')
 plt.autoscale(enable=True, axis='both', tight=True)
 plt.xlabel('Time')
 plt.tight_layout()
-plt.show()
+plt.savefig(os.path.join(root,'results.png'))
 
 plt.set_cmap('RdBu') # a good start: blue to white to red colormap
 plt.subplot(221)
@@ -64,4 +72,8 @@ plot_matrix(plt,model.C), plt.title('C'), plt.axis('off')
 plt.subplot(224)
 plot_matrix(plt,model.R), plt.title('R'), plt.axis('off')
 plt.tight_layout()
-plt.show()
+plt.savefig(os.path.join(root,'learned_parameters.png'))
+
+print('Images saved in "results" folder.')
+print('Done!')
+

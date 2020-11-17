@@ -1,4 +1,18 @@
+%%% Demo Script for Variational Bayesian Linear Dynamical System (VBLDS) %%%
+%
+% Citation:
+% J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for
+% Variational Inference of Bayesian Linear Dynamical Systems," 
+% IEEE International Conference on Acoustics, Speech and Signal Processing 
+% (ICASSP 2020), Barcelona, Spain, 2020, pp. 5885-5889.
+%
+% Author: Julian Neri
+% Affil: McGill University
+% Date: May 1, 2020
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 clear;clc;close all;
+rng(1);
 
 addpath('src','data','utils');
 
@@ -29,7 +43,7 @@ figure('pos',[0 1000 500 500])
 subplot(4,2,[1 2]);
 hold on;
 scatter(t,y,'filled'); 
-plot(t,y_hat,'linewidth',2); box on; axis tight; title('Data');
+plot(t,y_hat,'linewidth',2); box on; axis tight; title('Data'); 
 subplot(4,2,5);
 imagesc(parameters.A); title('A'); axis image;
 subplot(4,2,6);
@@ -43,10 +57,11 @@ hold on;
 t = 1:length(y_sampled);
 scatter(t,y_sampled,'g','filled'); 
 plot(t,parameters.C*x_sampled,'m','linewidth',2); box on; axis tight; title('Sampled from Learned Model');
+xlabel('Time');
 
 figure('pos',[400 0 500 200])
 plot(t,mu'); axis tight; title('Latent State');
 
 figure('pos',[0 0 400 200])
 plot(ell,'m','linewidth',2); 
-axis tight; xlabel('Iteration'); ylabel('ELL');
+axis tight; xlabel('Iteration'); title('Expected Log-Likelihood');

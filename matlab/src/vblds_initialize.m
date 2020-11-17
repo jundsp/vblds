@@ -1,3 +1,16 @@
+%%% Initialize the VBLDS model paramters %%%%%%%%%%%%%%%%%%%%%%%
+%
+% Citation:
+% J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for
+% Variational Inference of Bayesian Linear Dynamical Systems," 
+% IEEE International Conference on Acoustics, Speech and Signal Processing 
+% (ICASSP 2020), Barcelona, Spain, 2020, pp. 5885-5889.
+%
+% Author: Julian Neri
+% Affil: McGill University
+% Date: May 1, 2020
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function [parameters] = vblds_initialize(dimy,dimx)
 
     

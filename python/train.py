@@ -8,6 +8,7 @@ from torch import nn
 import numpy as np 
 import matplotlib.pyplot as plt
 import os
+import shutil
 
 torch.set_default_tensor_type(torch.DoubleTensor)
 torch.manual_seed(0)
@@ -29,6 +30,10 @@ for epoch in range(epochs):
 	print(('Epoch {:0.0f} / {:0.0f} ==> ELL = {:4.2f}').format(epoch,epochs,ell))
 
 # Save the model.
-torch.save(model.state_dict(),'saves/model.pt')
+root = 'saves'
+if os.path.exists(root):
+    shutil.rmtree(root)
+os.mkdir(root)
+torch.save(model.state_dict(),os.path.join(root,'model.pt'))
 print('Saved trained model.')
 

@@ -23,7 +23,7 @@ dimz = 8 # Dimension of latent space
 model = VBLDS(dimx=dimx,dimz=dimz)
 
 # Train
-epochs = 100
+epochs = 1000
 for epoch in range(epochs):
 	ell, muf, Vf, mus, Vs, V12 = model(x)
 

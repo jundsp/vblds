@@ -26,7 +26,7 @@ parameters = vblds_initialize(dimy,dimx);
 epochs = 1000;
 ell = zeros(1,epochs);
 for epoch = 1:epochs
-    % Bayesian Kalman filter and smoother4
+    % Bayesian Kalman filter and smoother
     [mu,V,V12] = vblds_infer(y,parameters);
     % Learn Parameters
     parameters = vblds_learn(y,mu,V,V12,parameters);

@@ -5,6 +5,7 @@ Variational inference of a Bayesian linear dynamical system. Written with PyTorc
 # File descriptions
 
 train.py - runs the variational EM algorithm to learn the Bayesian LDS given data sequence(s).
+
 evalual.py - evaluates the trained model on unseen test data. Also generates new data from the learned model. Plots results.
 
 # Easy usage:

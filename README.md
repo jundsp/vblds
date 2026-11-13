@@ -16,25 +16,26 @@ and smoother*.
 
 ## Model
 
-For $n = 1, \dots, N$, with latent state $x_n \in \mathbb{R}^{D_x}$ and
-observation $y_n \in \mathbb{R}^{D_y}$:
+For $n = 1, \dots, N$, with latent state $x_n \in \mathbb{R}^{D_x}$,
+observation $y_n \in \mathbb{R}^{D_y}$ and optional known input
+$u_n \in \mathbb{R}^{D_u}$ (paper, Eq. 1–6):
 
 $$
 \begin{aligned}
 x_1 &\sim \mathcal{N}(m_0, P_0) \\
-x_n &= A\,x_{n-1} + w_n, & w_n &\sim \mathcal{N}(0, Q) \\
-y_n &= C\,x_n + v_n, & v_n &\sim \mathcal{N}(0, R)
+x_n &= A\,x_{n-1} + B\,u_n + w_n, & w_n &\sim \mathcal{N}(0, Q) \\
+y_n &= C\,x_n + D\,u_n + v_n, & v_n &\sim \mathcal{N}(0, R)
 \end{aligned}
 $$
 
-In the paper, $Q$ and $R$ are general covariance matrices and the filter and
-smoother work with any prior on the parameters. They only need expectations
-such as $\langle Q^{-1}\rangle$ and $\mathbb{E}[A^\top Q^{-1} A]$ (paper,
-Sec. 2–3). The paper's model also allows optional inputs $u_n$ through
-matrices $B$ and $D$.
+All of $A, B, C, D, Q, R$ are random with a prior. $Q$ and $R$ are general
+covariance matrices, and the filter and smoother work with any prior on the
+parameters. They only need expectations such as $\langle Q^{-1}\rangle$ and
+$\mathbb{E}[A^\top Q^{-1} A]$ (paper, Sec. 2–3).
 
-**This implementation** has no inputs and offers two conjugate priors, chosen
-with the `covariance` option:
+**This implementation does not support inputs yet:** it fits the model with
+$B = D = 0$, i.e. no $u_n$. It offers two conjugate priors, chosen with the
+`covariance` option:
 
 | `covariance`           | $Q$, $R$ | Prior |
 | ---------------------- | -------- | ----- |

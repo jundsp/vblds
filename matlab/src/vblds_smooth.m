@@ -1,4 +1,22 @@
-%%% Smoothing Step for VBLDS %%%%%%%%%%%%%%%%%%%%%%%
+% VBLDS_SMOOTH  One backward step of the Bayesian RTS smoother.
+%
+%   [mu_hat, V_hat, V12] = VBLDS_SMOOTH(mu_plus, V_plus, mu, V, A, Q, Sigma_AQA)
+%   combines the filtered distribution at step n, N(mu, V), with the
+%   smoothed distribution at step n+1, N(mu_plus, V_plus), to give the
+%   smoothed distribution at step n. With Sigma_AQA = 0 this is the
+%   standard Rauch-Tung-Striebel step.
+%
+% Inputs:
+%   mu_plus, V_plus  smoothed mean/covariance at step n+1
+%   mu, V            filtered mean/covariance at step n
+%   A, Q             expected transition matrix and state noise covariance
+%   Sigma_AQA        E[A'Q^-1A] - <A>'<Q^-1><A>
+%
+% Outputs:
+%   mu_hat, V_hat    smoothed mean/covariance at step n
+%   V12              smoothed cross-covariance Cov(x_n, x_{n+1})
+%
+% See also VBLDS_INFER, VBLDS_PREDICT.
 %
 % Citation:
 % J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for

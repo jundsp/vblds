@@ -1,7 +1,13 @@
-% Rotation matrix
+% PHASOR  2-D rotation matrix.
 %
-% omega: angle of rotation in radians
-% D: dimension of matrix (result is zero-padded when D > 2).
+%   R = PHASOR(omega) returns [cos(omega) -sin(omega); sin(omega) cos(omega)].
+%   As a state transition matrix, it makes the latent state rotate by
+%   omega radians per step, a sinusoid at frequency omega/(2*pi) cycles per
+%   sample.
+%
+%   R = PHASOR(omega, D) puts the rotation in the top-left 2 x 2 block of a
+%   D x D matrix of zeros. If D < 2, it prints a warning and returns
+%   cos(omega).
 %
 % Author: Julian Neri
 % Affil: McGill University

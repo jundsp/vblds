@@ -1,3 +1,12 @@
+"""Evaluate the trained VBLDS on a new synthetic sequence and plot the results.
+
+Loads saves/model.pt (run train.py first), runs the filter and smoother on a
+new 200-step sequence, samples a new sequence from the learned model, and
+writes results/results.png and results/learned_parameters.png.
+
+Note: calling model(x) runs one VB-EM iteration, so the loaded parameters are
+also updated once on the test sequence.
+"""
 from __future__ import print_function
 import sys
 from data.data_loader import *
@@ -11,7 +20,7 @@ import os
 import shutil
 
 print('Evaluating on test data...')
-torch.set_default_tensor_type(torch.DoubleTensor)
+torch.set_default_dtype(torch.float64)
 torch.manual_seed(1)
 
 # Load the data
@@ -62,7 +71,8 @@ plt.xlabel('Time')
 plt.tight_layout()
 plt.savefig(os.path.join(root,'results.png'))
 
-plt.set_cmap('RdBu') # a good start: blue to white to red colormap
+plt.figure(figsize=(6,4))
+plt.set_cmap('RdBu') # blue-white-red colormap, centered on zero by plot_matrix
 plt.subplot(221)
 plot_matrix(plt, model.A), plt.title('A'), plt.axis('off')
 plt.subplot(222)

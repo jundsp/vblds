@@ -1,4 +1,14 @@
-%%% Sample from the VBLDS model %%%%%%%%%%%%%%%%%%%%%%%
+% VBLDS_SAMPLE  Draw a sequence from the linear dynamical system.
+%
+%   [y, x] = VBLDS_SAMPLE(params, N) samples N steps using the expected
+%   parameters in params (A, Q, C, R, m0, P0). It does not sample the
+%   parameters themselves.
+%
+% Outputs:
+%   y   sampled observations                                 (dimy x N)
+%   x   sampled latent states                                (dimx x N)
+%
+% Uses only base MATLAB (GAUSS_SAMPLE, in utils/, must be on the path).
 %
 % Citation:
 % J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for
@@ -17,11 +27,11 @@ dimy = size(parameters.R,1);
 dimx = size(parameters.A,1);
 x = zeros(dimx,N);
 y = zeros(dimy,N);
-x(:,1) = mvnrnd(parameters.m0,parameters.P0);
-y(:,1) = mvnrnd(parameters.C*x(:,1),parameters.R);
+x(:,1) = gauss_sample(parameters.m0,parameters.P0);
+y(:,1) = gauss_sample(parameters.C*x(:,1),parameters.R);
 for n = 2:N
-    x(:,n) = mvnrnd(parameters.A*x(:,n-1),parameters.Q);
-    y(:,n) = mvnrnd(parameters.C*x(:,n),parameters.R);
+    x(:,n) = gauss_sample(parameters.A*x(:,n-1),parameters.Q);
+    y(:,n) = gauss_sample(parameters.C*x(:,n),parameters.R);
 end
         
 end

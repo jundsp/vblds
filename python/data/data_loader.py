@@ -1,3 +1,4 @@
+"""Synthetic data for the VBLDS demo scripts."""
 from __future__ import print_function
 import torch
 from utils.utils import *
@@ -5,6 +6,20 @@ from model.vblds import *
 
 
 def load_data(N=100):
+	"""Sample a synthetic sequence from a known 2-D oscillator LDS.
+
+	The target model has a 2-D latent state that rotates about 6.55 cycles
+	per 100 samples and decays slightly (A = 0.999 * rotation), seen through a
+	random 1 x 2 matrix C with observation noise variance 0.05. The initial
+	phase and C are random on each call, so seed torch for repeatable data.
+
+	Args:
+	    N: number of time steps.
+
+	Returns:
+	    x: observations, shape (1, N).
+	    z: true latent states, shape (2, N).
+	"""
 	# Create target model to sample from
 	dimz = 2
 	dimx = 1

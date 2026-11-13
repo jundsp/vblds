@@ -1,4 +1,28 @@
-%%% Parameter Learning for VBLDS %%%%%%%%%%%%%%%%%%%%%%%
+% VBLDS_LEARN  M-step: variational update of the VBLDS parameters.
+%
+%   params = VBLDS_LEARN(y, mu, V, V12, params) updates the parameters
+%   using the smoothed moments from VBLDS_INFER:
+%     - A, Q: Normal-Gamma posterior for each row of A and the matching
+%       diagonal precision of Q. Q is set to the inverse expected precision.
+%     - C, R: the same for each row of C and the diagonal of R.
+%     - m0, P0: point estimates, the smoothed moments of x_1.
+%     - Sigma_AQA, Sigma_CRC: sums of the row posterior covariances, which
+%       the filter and smoother use to account for parameter uncertainty.
+%
+%   Hyperparameters (set below): alpha, beta are ARD prior precisions on the
+%   rows of A and C. (c0, d0) and (a0, b0) are Gamma prior parameters for
+%   the precisions of Q and R. All are set close to zero, which gives
+%   near-non-informative priors.
+%
+% Inputs:
+%   y        observations                                    (dimy x N)
+%   mu, V, V12   smoothed moments from VBLDS_INFER
+%   params   current parameter struct (only its fields are replaced)
+%
+% Output:
+%   params   updated struct with fields A, Q, C, R, m0, P0, Sigma_AQA, Sigma_CRC
+%
+% See also VBLDS_INFER, VBLDS_ELL.
 %
 % Citation:
 % J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for

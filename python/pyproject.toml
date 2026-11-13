@@ -1,0 +1,18 @@
+# Dependencies for the demo scripts. This folder is not an installable
+# package; uv just uses this file to set up an environment for it.
+#   uv run train.py
+#   uv run evaluate.py
+
+[project]
+name = "vblds"
+version = "0.1.0"
+description = "Variational Bayesian linear dynamical systems in PyTorch (ICASSP 2020)"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "numpy",
+    "matplotlib",
+]
+
+[tool.uv]
+package = false

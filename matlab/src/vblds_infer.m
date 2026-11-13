@@ -1,4 +1,19 @@
-%%% Filter and Smoother for VBLDS %%%%%%%%%%%%%%%%%%%%%%%
+% VBLDS_INFER  E-step: Bayesian Kalman filter and smoother over a sequence.
+%
+%   [mu, V, V12] = VBLDS_INFER(y, params) runs the forward filter
+%   (VBLDS_UPDATE, VBLDS_PREDICT), then the backward smoother (VBLDS_SMOOTH),
+%   and returns the smoothed posterior moments of the latent states.
+%
+% Inputs:
+%   y       observations                                     (dimy x N)
+%   params  parameter struct from VBLDS_INITIALIZE or VBLDS_LEARN
+%
+% Outputs:
+%   mu      smoothed means, E[x_n | y_{1:N}]                 (dimx x N)
+%   V       smoothed covariances                             (dimx x dimx x N)
+%   V12     smoothed cross-covariances Cov(x_n, x_{n+1})     (dimx x dimx x N-1)
+%
+% See also VBLDS_LEARN, VBLDS_UPDATE, VBLDS_PREDICT, VBLDS_SMOOTH.
 %
 % Citation:
 % J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for

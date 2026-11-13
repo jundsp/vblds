@@ -1,3 +1,9 @@
+"""Train a VBLDS on a synthetic sequence and save it to saves/model.pt.
+
+Samples 100 steps from a known 2-D oscillator LDS (data/data_loader.py), fits
+an 8-dimensional VBLDS with 200 VB-EM iterations, and prints the expected
+log-likelihood (ELL) after each iteration. Run evaluate.py afterwards.
+"""
 from __future__ import print_function
 import sys
 from data.data_loader import *
@@ -10,7 +16,7 @@ import matplotlib.pyplot as plt
 import os
 import shutil
 
-torch.set_default_tensor_type(torch.DoubleTensor)
+torch.set_default_dtype(torch.float64)
 torch.manual_seed(0)
 
 # Load the data

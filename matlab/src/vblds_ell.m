@@ -1,4 +1,12 @@
-%%% Expected Log-Likelihood for VBLDS %%%%%%%%%%%%%%%%%%%%%%%
+% VBLDS_ELL  Expected complete-data log-likelihood.
+%
+%   ell = VBLDS_ELL(y, mu, V, V12, params) returns E_q[log p(y, x | params)]
+%   under the posterior over latent states from VBLDS_INFER, evaluated at
+%   the expected parameters. It is the sum of the observation, initial-state
+%   and transition terms. It does not include the prior and entropy terms
+%   of the full variational lower bound. Use it to monitor convergence.
+%
+% See also VBLDS_INFER, VBLDS_LEARN.
 %
 % Citation:
 % J. Neri, R. Badeau and P. Depalle, "Probabilistic Filter and Smoother for

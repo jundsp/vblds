@@ -21,7 +21,8 @@ addpath('src','data','utils');
 % Initialize parameters
 dimy = size(y,1);
 dimx = 8;
-parameters = vblds_initialize(dimy,dimx);
+covariance = 'diagonal'; % form of Q and R: 'diagonal' or 'full'
+parameters = vblds_initialize(dimy,dimx,covariance);
 
 epochs = 1000;
 ell = zeros(1,epochs);

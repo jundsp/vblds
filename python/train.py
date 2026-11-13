@@ -1,45 +1,33 @@
-"""Train a VBLDS on a synthetic sequence and save it to saves/model.pt.
+"""Train a VBLDS on a synthetic sequence and save it to saves/model.npz.
 
 Samples 100 steps from a known 2-D oscillator LDS (data/data_loader.py), fits
-an 8-dimensional VBLDS with 200 VB-EM iterations, and prints the expected
-log-likelihood (ELL) after each iteration. Run evaluate.py afterwards.
+an 8-dimensional VBLDS with 300 VB-EM iterations, and prints the expected
+log-likelihood (ELL) and the filter's predictive log-likelihood after each
+iteration. Saves both curves to saves/history.npz. Run evaluate.py afterwards.
 """
-from __future__ import print_function
-import sys
-from data.data_loader import *
-from utils.utils import *
-from model.vblds import *
-import torch
-from torch import nn
-import numpy as np 
-import matplotlib.pyplot as plt
 import os
-import shutil
 
-torch.set_default_dtype(torch.float64)
-torch.manual_seed(0)
+import numpy as np
+
+from data.data_loader import load_data
+from model.vblds import VBLDS
+
+COVARIANCE = 'diagonal'  # form of Q and R: 'diagonal' or 'full'
+DIMX = 8                 # latent state dimension
+ITERATIONS = 300
+
+rng = np.random.default_rng(0)
 
 # Load the data
-x,z = load_data(N=100)
+y, x = load_data(N=100, rng=rng)
+dimy, N = y.shape
 
-dimx, N = x.size()
+# Create and train the model
+model = VBLDS(dimy=dimy, dimx=DIMX, covariance=COVARIANCE, rng=rng)
+history = model.fit(y, iterations=ITERATIONS, verbose=True)
 
-# Create VBLDS model 
-dimz = 8 # Dimension of latent space
-model = VBLDS(dimx=dimx,dimz=dimz)
-
-# Train
-epochs = 200
-for epoch in range(epochs):
-	ell, muf, Vf, mus, Vs, V12 = model(x)
-
-	print(('Epoch {:0.0f} / {:0.0f} ==> ELL = {:4.2f}').format(epoch,epochs,ell))
-
-# Save the model.
-root = 'saves'
-if os.path.exists(root):
-    shutil.rmtree(root)
-os.mkdir(root)
-torch.save(model.state_dict(),os.path.join(root,'model.pt'))
-print('Saved trained model.')
-
+# Save the model and the training curves (plotted by evaluate.py)
+os.makedirs('saves', exist_ok=True)
+model.save(os.path.join('saves', 'model.npz'))
+np.savez(os.path.join('saves', 'history.npz'), **history._asdict())
+print('Saved the model to saves/model.npz and training curves to saves/history.npz.')

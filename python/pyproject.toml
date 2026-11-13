@@ -6,13 +6,16 @@
 [project]
 name = "vblds"
 version = "0.1.0"
-description = "Variational Bayesian linear dynamical systems in PyTorch (ICASSP 2020)"
+description = "Variational Bayesian linear dynamical systems in NumPy (ICASSP 2020)"
 requires-python = ">=3.10"
 dependencies = [
-    "torch",
     "numpy",
     "matplotlib",
 ]
 
 [tool.uv]
 package = false
+
+[tool.ruff.lint.isort]
+# The script folders, so imports sort the same wherever ruff runs from.
+known-first-party = ["data", "model", "utils"]

@@ -1,7 +1,7 @@
 # VBLDS: Variational Bayesian Linear Dynamical Systems
 
 Variational inference and learning for Bayesian linear dynamical systems (linear
-Gaussian state space models), in MATLAB and PyTorch. It accompanies the paper
+Gaussian state space models), in MATLAB and Python (NumPy). It accompanies the paper
 
 > J. Neri, R. Badeau, P. Depalle, "[Probabilistic Filter and Smoother for Variational Inference of Bayesian Linear Dynamical Systems](https://ieeexplore.ieee.org/abstract/document/9054206),"
 > *IEEE International Conference on Acoustics, Speech, and Signal Processing (ICASSP)*,
@@ -27,10 +27,26 @@ y_n &= C\,x_n + v_n, & v_n &\sim \mathcal{N}(0, R)
 \end{aligned}
 $$
 
-$Q$ and $R$ are diagonal. Each row of $A$ (and of $C$) has a zero-mean Gaussian
-prior with ARD precisions `alpha` (`beta`), and each diagonal precision of $Q$
-($R$) has a Gamma prior. The hyperparameters are set very small, so the priors
-are close to non-informative. $m_0$ and $P_0$ are point estimates.
+In the paper, $Q$ and $R$ are general covariance matrices and the filter and
+smoother work with any prior on the parameters. They only need expectations
+such as $\langle Q^{-1}\rangle$ and $\mathbb{E}[A^\top Q^{-1} A]$ (paper,
+Sec. 2–3). The paper's model also allows optional inputs $u_n$ through
+matrices $B$ and $D$.
+
+**This implementation** has no inputs and offers two conjugate priors, chosen
+with the `covariance` option:
+
+| `covariance`           | $Q$, $R$ | Prior |
+| ---------------------- | -------- | ----- |
+| `'diagonal'` (default) | diagonal | Each row of $A$ ($C$) is Gaussian with ARD precisions `alpha` (`beta`); each diagonal precision of $Q$ ($R$) is Gamma. This is the prior suggested in the paper. |
+| `'full'`               | full     | Matrix-normal–Wishart on $(A, Q)$ and on $(C, R)$. The ARD precisions are shared by all rows. |
+
+Use `'full'` when the noise is correlated across dimensions; a diagonal model
+pushes that correlation into the latent states instead. The Wishart priors are
+matched to the Gamma priors, so with equal ARD precisions the diagonal of a
+`'full'` update equals the `'diagonal'` update. In both modes the
+hyperparameters are set very small, so the priors are close to
+non-informative, and $m_0$ and $P_0$ are point estimates.
 
 Each iteration of VB-EM:
 
@@ -44,8 +60,8 @@ Each iteration of VB-EM:
    Woodbury identity. If both corrections are zero, this is exactly the
    standard Kalman filter and RTS smoother.
 2. **M-step: variational parameter update** (`vblds_learn`). Updates the
-   Normal–Gamma posteriors over the rows of $A, Q$ and $C, R$ and the
-   correction matrices, using the smoothed moments
+   posteriors over $A, Q$ and $C, R$ (Normal–Gamma per row, or
+   matrix-normal–Wishart) and the correction matrices, using the smoothed moments
    $\mathbb{E}[x_n]$, $\mathbb{E}[x_n x_n^\top]$ and $\mathbb{E}[x_{n-1} x_n^\top]$.
 
 Progress is tracked with the **expected log-likelihood** (ELL),
@@ -58,15 +74,13 @@ because it leaves out the prior and entropy terms.
 | Folder               | Language | Data                    | Notes                                     |
 | -------------------- | -------- | ----------------------- | ----------------------------------------- |
 | [`matlab/`](matlab)  | MATLAB   | one sequence            | Reference implementation, one file per step |
-| [`python/`](python)  | PyTorch  | one sequence            | Same algorithm as a `torch.nn.Module`; see [python/README.md](python/README.md) |
+| [`python/`](python)  | NumPy    | one sequence            | Same algorithm as a `VBLDS` class; see [python/README.md](python/README.md) |
 
 Both implementations support multi-dimensional observations (`dimy > 1`) and
-latent states.
+latent states, and both `covariance` modes.
 
-> **Notation differs between the two.** MATLAB uses `y` for observations and
-> `x` for latent states, as in the paper. Python uses `x` for observations and
-> `z` for latent states (`dimx` = observation dimension, `dimz` = latent
-> dimension).
+Both use the paper's notation: `y` for observations and `x` for latent states,
+with dimensions `dimy` and `dimx`.
 
 ## MATLAB quick start
 
@@ -90,7 +104,8 @@ It plots:
 
 ```matlab
 addpath('src', 'utils');
-params = vblds_initialize(dimy, dimx);         % dimy = size(y,1), dimx = latent size
+params = vblds_initialize(dimy, dimx, 'full'); % dimy = size(y,1), dimx = latent size;
+                                                % 'full' or 'diagonal' (default) Q and R
 for iter = 1:num_iters
     [mu, V, V12] = vblds_infer(y, params);      % E-step
     params = vblds_learn(y, mu, V, V12, params); % M-step
@@ -100,7 +115,7 @@ end
 ```
 
 `y` is `dimy x N`. `params` is a struct with fields `A, Q, C, R, m0, P0,
-Sigma_AQA, Sigma_CRC`.
+Sigma_AQA, Sigma_CRC, covariance`.
 
 | Function            | Purpose                                                        |
 | ------------------- | -------------------------------------------------------------- |
@@ -117,7 +132,17 @@ Run `help <function>` in MATLAB for its inputs and outputs.
 
 ## Python quick start
 
-See [python/README.md](python/README.md).
+```bash
+cd python
+uv run train.py
+uv run evaluate.py
+```
+
+![Test data with the filtered and smoothed estimates, and a sequence sampled from the learned model](docs/python_example.png)
+
+![Training curves: predictive log-likelihood and ELL per VB-EM iteration](docs/python_training.png)
+
+See [python/README.md](python/README.md) for details and the `VBLDS` API.
 
 ## Repository layout
 
@@ -127,10 +152,11 @@ matlab/
   src/                     VBLDS algorithm (see table above)
   data/data_loader.m       Generates synthetic test sequences
   utils/                   Woodbury inverse, symmetrize, Gaussian/Laplace sampling and plotting helpers
+docs/                      Figures shown in this README
 python/
   train.py, evaluate.py    Train on synthetic data, then evaluate and plot
   pyproject.toml, uv.lock  Dependencies; run the scripts with `uv run`
-  model/vblds.py           VBLDS model (torch.nn.Module)
+  model/vblds.py           VBLDS model (NumPy)
   data/data_loader.py      Generates synthetic test sequences
   utils/utils.py           Helpers
 ```
